@@ -5,3 +5,7 @@ db.json
 node_modules/
 public/
 .deploy*/
+.env
+deploy.env
+event.json
+build/
