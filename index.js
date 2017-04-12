@@ -5,7 +5,6 @@ exports.handler = function( event, context, callback ) {
     var fs = require('fs');
     var tar = require('tar');
     var zlib = require('zlib');
-    //var https = require('https')
     var https = require('follow-redirects').https;
     var AWS = require('aws-sdk');
     var path = require('path');
@@ -53,37 +52,38 @@ exports.handler = function( event, context, callback ) {
 		var files = fs.readdirSync('/tmp/hexo-site-extracted');
 		console.log(files);
 		var tmpBaseDir = '/tmp/hexo-site-extracted' + '/' + files[0];
+		var tmpNodeModules = tmpBaseDir + '/node_modules';
 		console.log(tmpBaseDir);
-		fs.symlinkSync(process.cwd() + '/node_modules', tmpBaseDir + '/node_modules');
-		//callback(null, 'Done');
+		fs.unlink(tmpNodeModules, function() {
+		    fs.symlinkSync(process.cwd() + '/node_modules', tmpBaseDir + '/node_modules');
+		    //callback(null, 'Done');
 
 
-		var Hexo = require('hexo');
-		var hexo = new Hexo(tmpBaseDir, {});
-		hexo.init({}).then(function() {
-		    hexo.call('generate', {}).then(function() {
-			console.log(fs.readdirSync(tmpBaseDir + '/public'));
-			/*
-			var publicDir = path.resolve(buildDir);
-			var files = fs.readdirSync(publicDir);
-			var s3 = new AWS.S3();
-			async.map(files, function (f, cb) {
-			    console.log(f);
+		    var Hexo = require('hexo');
+		    var hexo = new Hexo(tmpBaseDir, {});
+		    hexo.init({}).then(function() {
+			hexo.call('generate', {}).then(function() {
+			    var tmpPublicDir = tmpBaseDir + '/public';
+			    console.log(fs.readdirSync(tmpPublicDir));
+			    var s3 = new AWS.S3();
+			    s3.putObject({
+				Bucket: 'hexo-site',
+				Key: 'index.html',
+				Body: fs.readFileSync(path.join(tmpPublicDir, "index.html"))
+			    }, function(err, data){
+				if (err) {
+				    callback(err);
+				} else {
+				    callback(null, "Donee2");
+				}				
+			    });
+			    //callback(null, 'Donee');
+			}).catch(function(err) {
+			    callback(err);
 			});
-			s3.putObject({
-			    Bucket: 'hexo-site',
-			    Key: 'index.html',
-			    Body: fs.readFileSync(path.join(publicDir, "index.html"))
-			}, function(err, data){
-			    callback(err, "success");		
-			});
-			*/
-			callback(null, 'Donee');
 		    }).catch(function(err) {
 			callback(err);
 		    });
-		}).catch(function(err) {
-		    callback(err);
 		});
 	    }
 	}
