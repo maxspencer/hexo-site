@@ -9,6 +9,7 @@ exports.handler = function( event, context, callback ) {
     var AWS = require('aws-sdk');
     var path = require('path');
     var async = require('async');
+    var s3 = require('s3');
     
     var download = function(host, path, dest, cb) {
 	var options = {
@@ -65,7 +66,11 @@ exports.handler = function( event, context, callback ) {
 			hexo.call('generate', {}).then(function() {
 			    var tmpPublicDir = tmpBaseDir + '/public';
 			    console.log(fs.readdirSync(tmpPublicDir));
-			    var s3 = new AWS.S3();
+			    var awsS3Client = new AWS.S3({
+				region: 'eu-west-2'
+			    });
+			    
+			    /*
 			    s3.putObject({
 				Bucket: 'hexo-site',
 				Key: 'index.html',
@@ -78,6 +83,27 @@ exports.handler = function( event, context, callback ) {
 				}				
 			    });
 			    //callback(null, 'Donee');
+			    */
+			 
+			    var client = s3.createClient({
+				s3Client: awsS3Client,
+			    });
+
+			    var params = {
+				localDir: tmpPublicDir,
+				deleteRemoved: true,				
+				s3Params: {
+				    Bucket: 'hexo-site-2',
+				},
+			    };
+			    var uploader = client.uploadDir(params);
+			    uploader.on('error', function(err) {
+				console.error("unable to sync:", err.stack);
+				callback(err);
+			    });
+			    uploader.on('end', function() {
+				callback(null, "Done uploading");
+			    });
 			}).catch(function(err) {
 			    callback(err);
 			});
