@@ -42,17 +42,20 @@ exports.handler = function( event, context, callback ) {
 	});
     };
 
+    console.log(JSON.parse(event.Records[0].Sns.Message));
+
+    var tmpDir = '/tmp/hexo-site-extracted'
     download(
 	'api.github.com',
 	'/repos/maxspencer/hexo-site/tarball/master',
-	'/tmp/hexo-site-extracted',
+	tmpDir,
 	function(err, data) {
 	    if (err) {
 		callback(err);
 	    } else {
-		var files = fs.readdirSync('/tmp/hexo-site-extracted');
+		var files = fs.readdirSync(tmpDir);
 		console.log(files);
-		var tmpBaseDir = '/tmp/hexo-site-extracted' + '/' + files[0];
+		var tmpBaseDir = tmpDir + '/' + files[0];
 		var tmpNodeModules = tmpBaseDir + '/node_modules';
 		console.log(tmpBaseDir);
 		fs.unlink(tmpNodeModules, function() {
