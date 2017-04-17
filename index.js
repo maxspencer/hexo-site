@@ -54,6 +54,7 @@ exports.handler = function(event, context, callback) {
 	    callback(err);
 	    return;
 	}
+	var files = fs.readdirSync(tmpDir);
 	var tmpBaseDir = path.join(tmpDir, files[0]);
 	var tmpPublicDir = path.join(tmpBaseDir, '/public');
 	var tmpNodeModules = path.join(tmpBaseDir, '/node_modules');
