@@ -5,6 +5,7 @@ exports.handler = function(event, context, callback) {
     var https = require('follow-redirects').https;
     var AWS = require('aws-sdk');
     var path = require('path');
+    var url = require('url');
     var async = require('async');
     var s3 = require('s3');
     var Hexo = require('hexo');
@@ -35,23 +36,30 @@ exports.handler = function(event, context, callback) {
 	});
     };
 
-    var listDir = function(path) {
-	var files = fs.readdirSync(path);
-	async.map(files, function (f, cb) {
-	    console.log(f);
-	});
-    };
-
     var message = JSON.parse(event.Records[0].Sns.Message);
-
     console.log('Message: ' + JSON.stringify(message, null, 2));
 
-    var archivePath = '/repos/maxspencer/hexo-site/tarball/master';
-    var tmpDir = '/tmp/hexo-site-extracted';
+    if (message.pusher === undefined) {
+	console.log('Not a push event, no build triggered');
+	callback(null, 'No build');
+	return;
+    }
+
+    var archiveFormat = 'tarball';
     var s3Region = 'eu-west-2';
     var s3Bucket = 'hexo-site-2';
+
+    var archiveUrl = url.parse(
+	message.repository.archive_url
+	    .replace('{archive_format}', archiveFormat)
+	    .replace('{/ref}', '/' + message.ref)
+    );
+    console.log('Archive URL is ' + url.format(archiveUrl));
     
-    download('api.github.com', archivePath, tmpDir, function(err, data) {
+    var tmpDir = path.join('/tmp', message.repository.name + '-' + message.after);
+    console.log('Download directory is ' + tmpDir);    
+    
+    download(archiveUrl.host, archiveUrl.path, tmpDir, function(err, data) {
 	if (err) {
 	    callback(err);
 	    return;
