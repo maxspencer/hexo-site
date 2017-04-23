@@ -42,7 +42,9 @@ exports.handler = function(event, context, callback) {
 	});
     };
 
-    console.log(JSON.parse(event.Records[0].Sns.Message));
+    var message = JSON.parse(event.Records[0].Sns.Message);
+
+    console.log('Message: ' + JSON.stringify(message, null, 2));
 
     var archivePath = '/repos/maxspencer/hexo-site/tarball/master';
     var tmpDir = '/tmp/hexo-site-extracted';
