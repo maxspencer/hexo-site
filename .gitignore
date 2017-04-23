@@ -8,4 +8,4 @@ public/
 .env
 deploy.env
 event.json
-build/
+hexo-site-development.zip
