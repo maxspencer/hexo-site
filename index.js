@@ -49,10 +49,6 @@ exports.handler = function(event, context, callback) {
     var archiveFormat = 'tarball';
     var configFilePath = '.lambdeploy.yml'
 
-    //var buildDir = 'public';
-    //var s3Region = 'eu-west-2';
-    //var s3Bucket = 'hexo-site-2';
-
     var archiveUrl = url.parse(
 	message.repository.archive_url
 	    .replace('{archive_format}', archiveFormat)
@@ -85,6 +81,7 @@ exports.handler = function(event, context, callback) {
 		hexo.init({}).then(function() {
 		    hexo.call('generate', {}).then(function() {
 			console.log('Generated site files in ' + tmpBuildDir);
+			console.log('Uploading to S3 bucket ' + config.s3Bucket + ' in ' + config.s3Region);
 			var awsS3Client = new AWS.S3({ region: config.s3Region	});
 			var s3Client = s3.createClient({ s3Client: awsS3Client });
 			var uploader = s3Client.uploadDir({
