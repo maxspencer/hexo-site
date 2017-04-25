@@ -9,6 +9,7 @@ exports.handler = function(event, context, callback) {
     var async = require('async');
     var s3 = require('s3');
     var Hexo = require('hexo');
+    var yaml = require('yaml-js');
 
     var userAgent = 'maxspencer';
     
@@ -46,10 +47,11 @@ exports.handler = function(event, context, callback) {
     }
 
     var archiveFormat = 'tarball';
+    var configFilePath = '.lambdeploy.yml'
 
-    var buildDir = 'public';
-    var s3Region = 'eu-west-2';
-    var s3Bucket = 'hexo-site-2';
+    //var buildDir = 'public';
+    //var s3Region = 'eu-west-2';
+    //var s3Bucket = 'hexo-site-2';
 
     var archiveUrl = url.parse(
 	message.repository.archive_url
@@ -68,7 +70,8 @@ exports.handler = function(event, context, callback) {
 	}
 	var files = fs.readdirSync(tmpDir);
 	var tmpBaseDir = path.join(tmpDir, files[0]);
-	var tmpBuildDir = path.join(tmpBaseDir, buildDir);
+	var config = yaml.load(fs.readFileSync(path.join(tmpBaseDir, configFilePath)))
+	var tmpBuildDir = path.join(tmpBaseDir, config.buildDir);
 	var tmpNodeModules = path.join(tmpBaseDir, 'node_modules');
 	var packageNodeModules = path.join(process.cwd(), 'node_modules');
 	console.log('Temporary working directory is ' + tmpBaseDir);
@@ -82,13 +85,13 @@ exports.handler = function(event, context, callback) {
 		hexo.init({}).then(function() {
 		    hexo.call('generate', {}).then(function() {
 			console.log('Generated site files in ' + tmpBuildDir);
-			var awsS3Client = new AWS.S3({ region: s3Region	});
+			var awsS3Client = new AWS.S3({ region: config.s3Region	});
 			var s3Client = s3.createClient({ s3Client: awsS3Client });
 			var uploader = s3Client.uploadDir({
 			    localDir: tmpBuildDir,
 			    deleteRemoved: true,				
 			    s3Params: {
-				Bucket: s3Bucket,
+				Bucket: config.s3Bucket,
 			    },
 			});
 			uploader.on('error', function(err) {
