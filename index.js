@@ -1,4 +1,4 @@
-exports.handler = function(event, context, callback) {
+/*exports.handler = function(event, context, callback) {
     var fs = require('fs');
     var tar = require('tar');
     var zlib = require('zlib');
@@ -108,3 +108,14 @@ exports.handler = function(event, context, callback) {
 	});
     });
 }
+*/
+
+var lambdeploy = require('lambdeploy');
+
+exports.handler = lambdeploy.createHandler(function(workingDir, callback) {
+    var Hexo = require('hexo');
+    var hexo = new Hexo(workingDir, {});
+    hexo.init({}).then(function() {
+	hexo.call('generate', {}).then(callback).catch(callback);
+    }).catch(callback);
+});
