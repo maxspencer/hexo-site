@@ -1,3 +1,2 @@
-buildDir: public
 s3Region: eu-west-2
 s3Bucket: hexo-site-2
