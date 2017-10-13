@@ -8,15 +8,14 @@ phases:
   pre_build:
     commands:
       - echo Entered the pre_build phase...
+      - echo '{"url":"https://s3.eu-west-2.amazonaws.com/hexo-site-codebuild","root":"/hexo-site-codebuild/"}' > extra_config.json
   build:
     commands:
       - echo Entered the build phase...
       - echo Build started on `date`
-      - hexo generate
+      - hexo generate --config extra_config.json
   post_build:
     commands:
       - echo Entered the post_build phase...
+      - aws s3 sync --delete public/ s3://${S3_PATH}
       - echo Build completed on `date`
-artifacts:
-  files:
-    - public/*
