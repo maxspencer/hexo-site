@@ -5,6 +5,7 @@ phases:
     commands:
       - echo Entered the install phase...
       - npm install
+      - npm install -g hexo-cli
   pre_build:
     commands:
       - echo Entered the pre_build phase...
