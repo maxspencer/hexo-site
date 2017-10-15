@@ -9,7 +9,7 @@ phases:
   pre_build:
     commands:
       - echo Entered the pre_build phase...
-      - echo '{"url":"${OUTPUT_URL}","root":"${OUTPUT_ROOT_PATH}"}' > extra_config.json
+      - echo "{\"url\":\"${OUTPUT_URL}\",\"root\":\"${OUTPUT_ROOT_PATH}\"}" > extra_config.json
   build:
     commands:
       - echo Entered the build phase...
