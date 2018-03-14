@@ -1,0 +1,22 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo Entered the install phase...
+      - npm install -q
+      - npm install -q -g hexo-cli
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+      - echo "{\"url\":\"${OUTPUT_URL}\",\"root\":\"${OUTPUT_ROOT_PATH}\"}" > extra_config.json
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date`
+      - hexo generate --config extra_config.json
+  post_build:
+    commands:
+      - echo Entered the post_build phase...
+      - aws s3 sync --delete public/ s3://${OUTPUT_S3_PATH}
+      - echo Build completed on `date`
