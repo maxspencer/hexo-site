@@ -1,3 +1,3 @@
 # hexo-site
 
-Finding out how to make a statically generated website that gets built and deployed with an AWS lambda, or possibly CodeBuild?
+A repo I use to test out a GitHub app I'm making for continuous deployment.
