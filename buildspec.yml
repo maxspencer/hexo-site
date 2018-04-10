@@ -4,7 +4,6 @@ phases:
   install:
     commands:
       - echo Entered the install phase...
-      - npm install -q
   pre_build:
     commands:
       - echo Entered the pre_build phase...
